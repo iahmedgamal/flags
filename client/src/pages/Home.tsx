@@ -50,7 +50,15 @@ export function Home() {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
         >
-          Play
+          Solo Play
+        </motion.button>
+        <motion.button
+          onClick={() => navigate("/multiplayer")}
+          className="rounded-xl bg-blue-600 px-12 py-5 text-xl font-bold transition-colors hover:bg-blue-500"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          Multiplayer
         </motion.button>
         <motion.button
           onClick={() => navigate("/leaderboard")}

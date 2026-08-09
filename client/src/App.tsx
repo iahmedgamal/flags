@@ -6,6 +6,9 @@ import { SoloResults } from "@/pages/SoloResults";
 import { PlayerSetup } from "@/pages/PlayerSetup";
 import { Profile } from "@/pages/Profile";
 import { Leaderboard } from "@/pages/Leaderboard";
+import { MultiplayerLobby } from "@/pages/MultiplayerLobby";
+import { MultiplayerGame } from "@/pages/MultiplayerGame";
+import { MultiplayerResults } from "@/pages/MultiplayerResults";
 
 function AppRoutes() {
   const { player, loading } = usePlayer();
@@ -29,6 +32,9 @@ function AppRoutes() {
       <Route path="/results" element={<SoloResults />} />
       <Route path="/profile/:id" element={<Profile />} />
       <Route path="/leaderboard" element={<Leaderboard />} />
+      <Route path="/multiplayer" element={<MultiplayerLobby />} />
+      <Route path="/multiplayer/play" element={<MultiplayerGame />} />
+      <Route path="/multiplayer/results" element={<MultiplayerResults />} />
     </Routes>
   );
 }
