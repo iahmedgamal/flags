@@ -2,85 +2,8 @@ import { useEffect, useState, useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import type { GameMode } from "@flags/shared";
-
-interface Country {
-  id: string;
-  name: string;
-  capital: string;
-  flag_url: string;
-  continent: string;
-}
-
-interface Question {
-  prompt: string;
-  correctAnswer: string;
-  options: string[];
-  flag: string;
-}
-
-function shuffle<T>(arr: T[]): T[] {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-
-function generateQuestions(
-  countries: Country[],
-  mode: GameMode,
-  count: number
-): Question[] {
-  let pool = countries;
-  if (mode === "africa-only") {
-    pool = countries.filter((c) => c.continent === "Africa");
-  }
-
-  const selected = shuffle(pool).slice(0, count);
-
-  return selected.map((country) => {
-    const others = shuffle(pool.filter((c) => c.id !== country.id)).slice(0, 3);
-
-    if (mode === "flag-to-country" || mode === "africa-only") {
-      const options = shuffle([
-        country.name,
-        ...others.map((c) => c.name),
-      ]);
-      return {
-        prompt: "Which country does this flag belong to?",
-        flag: country.flag_url,
-        correctAnswer: country.name,
-        options,
-      };
-    }
-
-    if (mode === "country-to-capital") {
-      const options = shuffle([
-        country.capital,
-        ...others.map((c) => c.capital),
-      ]);
-      return {
-        prompt: `What is the capital of ${country.name}?`,
-        flag: country.flag_url,
-        correctAnswer: country.capital,
-        options,
-      };
-    }
-
-    // flag-to-capital
-    const options = shuffle([
-      country.capital,
-      ...others.map((c) => c.capital),
-    ]);
-    return {
-      prompt: "What is the capital of this country?",
-      flag: country.flag_url,
-      correctAnswer: country.capital,
-      options,
-    };
-  });
-}
+import { generateQuestions, calculateScore } from "@/lib/game";
+import type { Country, Question } from "@/lib/game";
 
 export function SoloGame() {
   const navigate = useNavigate();
