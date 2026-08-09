@@ -5,8 +5,10 @@ import {
   getResultEmoji,
   getResultMessage,
   generateQuestions,
+  formatTime,
+  getContinentBreakdown,
 } from "./game";
-import type { Country } from "./game";
+import type { Country, QuestionResult } from "./game";
 
 const MOCK_COUNTRIES: Country[] = [
   { id: "1", name: "Nigeria", capital: "Abuja", flag_url: "🇳🇬", continent: "Africa" },
@@ -54,12 +56,12 @@ describe("shuffle", () => {
 });
 
 describe("calculateScore", () => {
-  it("should return 12 for streak of 1", () => {
+  it("should return 10 for streak of 1 (no bonus on first correct)", () => {
     // When
     const result = calculateScore(1);
 
     // Assert
-    expect(result).toBe(12);
+    expect(result).toBe(10);
   });
 
   it("should return 10 for streak of 0", () => {
@@ -68,6 +70,14 @@ describe("calculateScore", () => {
 
     // Assert
     expect(result).toBe(10);
+  });
+
+  it("should return 14 for streak of 2 (bonus starts here)", () => {
+    // When
+    const result = calculateScore(2);
+
+    // Assert
+    expect(result).toBe(14);
   });
 
   it("should return 20 for streak of 5", () => {
@@ -144,20 +154,6 @@ describe("generateQuestions", () => {
     });
   });
 
-  it("should filter to Africa-only for africa-only mode", () => {
-    // When
-    const questions = generateQuestions(MOCK_COUNTRIES, "africa-only", 3);
-
-    // Assert — correct answers should all be African countries
-    const africanNames = MOCK_COUNTRIES
-      .filter((c) => c.continent === "Africa")
-      .map((c) => c.name);
-
-    questions.forEach((q) => {
-      expect(africanNames).toContain(q.correctAnswer);
-    });
-  });
-
   it("should ask about capitals in country-to-capital mode", () => {
     // When
     const questions = generateQuestions(MOCK_COUNTRIES, "country-to-capital", 3);
@@ -187,5 +183,87 @@ describe("generateQuestions", () => {
 
     // Assert
     expect(questions).toHaveLength(MOCK_COUNTRIES.length);
+  });
+
+  it("should include continent on each question", () => {
+    // When
+    const questions = generateQuestions(MOCK_COUNTRIES, "flag-to-capital", 3);
+
+    // Assert
+    questions.forEach((q) => {
+      expect(q.continent).toBeDefined();
+    });
+  });
+});
+
+describe("formatTime", () => {
+  it("should show seconds only for under a minute", () => {
+    expect(formatTime(45)).toBe("45s");
+  });
+
+  it("should show minutes and seconds", () => {
+    expect(formatTime(125)).toBe("2m 5s");
+  });
+
+  it("should show 0s for zero", () => {
+    expect(formatTime(0)).toBe("0s");
+  });
+
+  it("should round fractional seconds", () => {
+    expect(formatTime(90.7)).toBe("1m 31s");
+  });
+});
+
+describe("getContinentBreakdown", () => {
+  it("should group results by continent", () => {
+    // Arrange
+    const results: QuestionResult[] = [
+      { correct: true, continent: "Africa" },
+      { correct: false, continent: "Africa" },
+      { correct: true, continent: "Europe" },
+      { correct: true, continent: "Europe" },
+    ];
+
+    // When
+    const breakdown = getContinentBreakdown(results);
+
+    // Assert
+    expect(breakdown).toHaveLength(2);
+  });
+
+  it("should calculate correct percentages", () => {
+    // Arrange
+    const results: QuestionResult[] = [
+      { correct: true, continent: "Africa" },
+      { correct: false, continent: "Africa" },
+      { correct: true, continent: "Africa" },
+      { correct: false, continent: "Africa" },
+    ];
+
+    // When
+    const breakdown = getContinentBreakdown(results);
+
+    // Assert
+    const africa = breakdown.find((b) => b.continent === "Africa");
+    expect(africa?.percentage).toBe(50);
+    expect(africa?.correct).toBe(2);
+    expect(africa?.total).toBe(4);
+  });
+
+  it("should sort by percentage ascending (worst first)", () => {
+    // Arrange
+    const results: QuestionResult[] = [
+      { correct: true, continent: "Europe" },
+      { correct: true, continent: "Europe" },
+      { correct: false, continent: "Africa" },
+      { correct: false, continent: "Africa" },
+    ];
+
+    // When
+    const breakdown = getContinentBreakdown(results);
+
+    // Assert — Africa (0%) should come before Europe (100%)
+    expect(breakdown[0].continent).toBe("Africa");
+    expect(breakdown[1].continent).toBe("Europe");
   });
 });

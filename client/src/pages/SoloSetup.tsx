@@ -5,9 +5,7 @@ import type { GameMode } from "@flags/shared";
 
 const MODES: { value: GameMode; label: string; emoji: string }[] = [
   { value: "flag-to-country", label: "Flag → Country", emoji: "🏳️" },
-  { value: "country-to-capital", label: "Country → Capital", emoji: "🏛️" },
-  { value: "flag-to-capital", label: "Flag → Capital (Hard)", emoji: "🔥" },
-  { value: "africa-only", label: "Africa Only", emoji: "🌍" },
+  { value: "flag-to-capital", label: "Flag → Capital", emoji: "🏛️" },
 ];
 
 const QUESTION_COUNTS = [5, 10, 15, 20];

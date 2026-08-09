@@ -2,6 +2,36 @@ import { Router } from "express";
 import { db } from "../db";
 import { gameResultSchema } from "@flags/shared";
 
+interface LeaderboardRow {
+  id: string;
+  player_id: string;
+  player_name: string;
+  avatar: string;
+  game_mode: string;
+  score: number;
+  streak: number;
+  total_questions: number;
+  correct_answers: number;
+  time_seconds: number;
+  created_at: string;
+}
+
+function toLeaderboardResponse(row: LeaderboardRow) {
+  return {
+    id: row.id,
+    playerId: row.player_id,
+    playerName: row.player_name,
+    avatar: row.avatar,
+    gameMode: row.game_mode,
+    score: row.score,
+    streak: row.streak,
+    totalQuestions: row.total_questions,
+    correctAnswers: row.correct_answers,
+    timeSeconds: row.time_seconds,
+    createdAt: row.created_at,
+  };
+}
+
 const router = Router();
 
 /**
@@ -17,6 +47,11 @@ const router = Router();
  *           type: string
  *           enum: [flag-to-country, country-to-capital, flag-to-capital, africa-only]
  *       - in: query
+ *         name: playerId
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *       - in: query
  *         name: limit
  *         schema:
  *           type: integer
@@ -26,13 +61,16 @@ const router = Router();
  *         description: Top scores
  */
 router.get("/", async (req, res) => {
-  const { mode, limit = 20 } = req.query;
+  const { mode, playerId, limit = 20 } = req.query;
   let query = db("leaderboard").orderBy("score", "desc").limit(Number(limit));
   if (mode) {
     query = query.where("game_mode", mode);
   }
+  if (playerId) {
+    query = query.where("player_id", playerId);
+  }
   const entries = await query;
-  res.json(entries);
+  res.json(entries.map(toLeaderboardResponse));
 });
 
 /**
@@ -70,7 +108,7 @@ router.post("/", async (req, res) => {
       time_seconds: parsed.data.timeSeconds,
     })
     .returning("*");
-  res.status(201).json(entry);
+  res.status(201).json(toLeaderboardResponse(entry));
 });
 
 export default router;

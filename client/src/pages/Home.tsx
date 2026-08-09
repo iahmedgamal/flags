@@ -1,11 +1,25 @@
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { usePlayer } from "@/hooks/usePlayer";
 
 export function Home() {
   const navigate = useNavigate();
+  const { player } = usePlayer();
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-8 p-4">
+      {player && (
+        <motion.button
+          onClick={() => navigate(`/profile/${player.id}`)}
+          className="absolute right-4 top-4 flex items-center gap-2 rounded-xl bg-gray-800 px-4 py-2 transition-colors hover:bg-gray-700"
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+        >
+          <span className="text-xl">{player.avatar}</span>
+          <span className="font-semibold">{player.displayName}</span>
+        </motion.button>
+      )}
+
       <motion.h1
         className="text-6xl font-bold"
         initial={{ scale: 0 }}
@@ -21,7 +35,7 @@ export function Home() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
       >
-        How well do you know the world?
+        40 flags. 7 seconds each. What's the capital?
       </motion.p>
 
       <motion.div
@@ -30,18 +44,14 @@ export function Home() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
       >
-        <button
-          onClick={() => navigate("/solo")}
-          className="rounded-xl bg-emerald-600 px-8 py-4 text-lg font-semibold transition-colors hover:bg-emerald-500"
+        <motion.button
+          onClick={() => navigate("/play")}
+          className="rounded-xl bg-emerald-600 px-12 py-5 text-xl font-bold transition-colors hover:bg-emerald-500"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
         >
-          Solo Play
-        </button>
-        <button className="rounded-xl bg-blue-600 px-8 py-4 text-lg font-semibold transition-colors hover:bg-blue-500">
-          Multiplayer
-        </button>
-        <button className="rounded-xl bg-amber-600 px-8 py-4 text-lg font-semibold transition-colors hover:bg-amber-500">
-          Leaderboard
-        </button>
+          Play
+        </motion.button>
       </motion.div>
     </div>
   );

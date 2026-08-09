@@ -2,6 +2,30 @@ import { Router } from "express";
 import { db } from "../db";
 import { insertPlayerSchema } from "@flags/shared";
 
+interface PlayerRow {
+  id: string;
+  display_name: string;
+  avatar: string;
+  email: string | null;
+  email_verified: boolean;
+  email_opted_in_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+function toPlayerResponse(row: PlayerRow) {
+  return {
+    id: row.id,
+    displayName: row.display_name,
+    avatar: row.avatar,
+    email: row.email,
+    emailVerified: row.email_verified,
+    emailOptedInAt: row.email_opted_in_at,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
 const router = Router();
 
 /**
@@ -34,8 +58,15 @@ router.post("/", async (req, res) => {
     res.status(400).json({ error: parsed.error.flatten() });
     return;
   }
-  const [player] = await db("players").insert(parsed.data).returning("*");
-  res.status(201).json(player);
+  const [player] = await db("players")
+    .insert({
+      display_name: parsed.data.displayName,
+      avatar: parsed.data.avatar,
+      email: parsed.data.email ?? null,
+      email_verified: parsed.data.emailVerified ?? false,
+    })
+    .returning("*");
+  res.status(201).json(toPlayerResponse(player));
 });
 
 /**
@@ -62,7 +93,7 @@ router.get("/:id", async (req, res) => {
     res.status(404).json({ error: "Player not found" });
     return;
   }
-  res.json(player);
+  res.json(toPlayerResponse(player));
 });
 
 /**
@@ -105,7 +136,7 @@ router.patch("/:id/email", async (req, res) => {
     res.status(404).json({ error: "Player not found" });
     return;
   }
-  res.json(player);
+  res.json(toPlayerResponse(player));
 });
 
 export default router;

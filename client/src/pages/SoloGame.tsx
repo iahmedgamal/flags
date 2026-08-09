@@ -1,71 +1,129 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import type { GameMode } from "@flags/shared";
-import { generateQuestions, calculateScore } from "@/lib/game";
-import type { Country, Question } from "@/lib/game";
+import { generateQuestions } from "@/lib/game";
+import type { Country, Question, QuestionResult } from "@/lib/game";
+import { usePlayer } from "@/hooks/usePlayer";
+
+const TOTAL_QUESTIONS = 40;
+const SECONDS_PER_QUESTION = 7;
 
 export function SoloGame() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const mode = (searchParams.get("mode") || "flag-to-country") as GameMode;
-  const count = Number(searchParams.get("count") || 10);
+  const transitionMs = searchParams.get("fast") ? 100 : 1000;
+  const { player } = usePlayer();
 
   const [questions, setQuestions] = useState<Question[]>([]);
   const [current, setCurrent] = useState(0);
   const [score, setScore] = useState(0);
   const [streak, setStreak] = useState(0);
-  const [correctCount, setCorrectCount] = useState(0);
   const [bestStreak, setBestStreak] = useState(0);
   const [selected, setSelected] = useState<string | null>(null);
   const [correct, setCorrect] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
   const [startTime] = useState(Date.now());
+  const [timer, setTimer] = useState(SECONDS_PER_QUESTION);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const resultsRef = useRef<QuestionResult[]>([]);
 
   useEffect(() => {
     fetch("/api/countries")
       .then((r) => r.json())
       .then((countries: Country[]) => {
-        setQuestions(generateQuestions(countries, mode, count));
+        setQuestions(generateQuestions(countries, "flag-to-capital", TOTAL_QUESTIONS));
         setLoading(false);
       });
-  }, [mode, count]);
+  }, []);
+
+  useEffect(() => {
+    if (loading || selected) return;
+
+    setTimer(SECONDS_PER_QUESTION);
+    timerRef.current = setInterval(() => {
+      setTimer((prev) => {
+        if (prev <= 1) {
+          clearInterval(timerRef.current!);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [current, loading, selected]);
+
+  useEffect(() => {
+    if (timer === 0 && !selected && questions.length > 0) {
+      handleAnswer(null);
+    }
+  }, [timer]);
 
   const handleAnswer = useCallback(
-    (answer: string) => {
+    (answer: string | null) => {
       if (selected) return;
-      setSelected(answer);
+      if (timerRef.current) clearInterval(timerRef.current);
+
+      setSelected(answer || "__timeout__");
       const isCorrect = answer === questions[current].correctAnswer;
       setCorrect(isCorrect);
 
-      const newCorrectCount = isCorrect ? correctCount + 1 : correctCount;
-      const newScore = isCorrect ? score + 10 + (streak + 1) * 2 : score;
+      resultsRef.current.push({
+        correct: isCorrect,
+        continent: questions[current].continent,
+      });
+
       const newStreak = isCorrect ? streak + 1 : 0;
+      const newScore = isCorrect ? score + 10 + (newStreak > 1 ? newStreak * 2 : 0) : score;
       const newBestStreak = Math.max(bestStreak, newStreak);
 
-      if (isCorrect) {
-        setCorrectCount(newCorrectCount);
-        setStreak(newStreak);
-        setBestStreak(newBestStreak);
-        setScore(newScore);
-      } else {
-        setStreak(0);
-      }
+      setStreak(newStreak);
+      setBestStreak(newBestStreak);
+      setScore(newScore);
 
       setTimeout(() => {
         if (current + 1 >= questions.length) {
           const timeSeconds = (Date.now() - startTime) / 1000;
-          navigate(
-            `/solo/results?score=${newScore}&total=${questions.length}&correct=${newCorrectCount}&streak=${newBestStreak}&time=${timeSeconds.toFixed(1)}&mode=${mode}`
-          );
+          const correctCount = resultsRef.current.filter((r) => r.correct).length;
+
+          if (player) {
+            fetch("/api/leaderboard", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                playerId: player.id,
+                playerName: player.displayName,
+                avatar: player.avatar,
+                gameMode: "flag-to-capital",
+                score: newScore,
+                streak: newBestStreak,
+                totalQuestions: questions.length,
+                correctAnswers: correctCount,
+                timeSeconds,
+              }),
+            }).catch(() => {});
+          }
+
+          navigate("/results", {
+            state: {
+              score: newScore,
+              total: questions.length,
+              correct: correctCount,
+              streak: newBestStreak,
+              timeSeconds,
+              results: resultsRef.current,
+            },
+          });
         } else {
           setCurrent((prev) => prev + 1);
           setSelected(null);
           setCorrect(null);
         }
-      }, 1000);
+      }, transitionMs);
     },
-    [selected, questions, current, streak, bestStreak, score, correctCount, startTime, navigate, mode]
+    [selected, questions, current, streak, bestStreak, score, startTime, navigate, transitionMs, player]
   );
 
   if (loading) {
@@ -83,6 +141,7 @@ export function SoloGame() {
   }
 
   const question = questions[current];
+  const timerColor = timer > 4 ? "text-emerald-400" : timer > 2 ? "text-yellow-400" : "text-red-400";
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-6 p-4">
@@ -90,6 +149,14 @@ export function SoloGame() {
         <span>
           {current + 1} / {questions.length}
         </span>
+        <motion.span
+          className={`text-2xl font-bold ${timerColor}`}
+          key={timer}
+          initial={{ scale: 1.3 }}
+          animate={{ scale: 1 }}
+        >
+          {timer}s
+        </motion.span>
         <span>Score: {score}</span>
         {streak > 1 && (
           <motion.span
@@ -120,7 +187,7 @@ export function SoloGame() {
         >
           <span className="text-8xl">{question.flag}</span>
 
-          <p className="text-center text-xl text-gray-300">{question.prompt}</p>
+          <p className="text-center text-xl text-gray-300">What's the capital?</p>
 
           <div className="grid w-full max-w-lg grid-cols-1 gap-3 sm:grid-cols-2">
             {question.options.map((option) => {
