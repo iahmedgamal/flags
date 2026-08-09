@@ -1,5 +1,6 @@
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
+import { getResultEmoji, getResultMessage } from "@/lib/game";
 
 export function SoloResults() {
   const navigate = useNavigate();
@@ -14,22 +15,6 @@ export function SoloResults() {
 
   const percentage = total > 0 ? Math.round((correct / total) * 100) : 0;
 
-  function getEmoji() {
-    if (percentage === 100) return "🏆";
-    if (percentage >= 80) return "🌟";
-    if (percentage >= 60) return "👍";
-    if (percentage >= 40) return "🤔";
-    return "📚";
-  }
-
-  function getMessage() {
-    if (percentage === 100) return "Perfect! You're a geography genius!";
-    if (percentage >= 80) return "Amazing! Almost perfect!";
-    if (percentage >= 60) return "Great job! Keep learning!";
-    if (percentage >= 40) return "Not bad! Practice makes perfect!";
-    return "Keep exploring the world!";
-  }
-
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-8 p-4">
       <motion.span
@@ -38,7 +23,7 @@ export function SoloResults() {
         animate={{ scale: 1, rotate: 0 }}
         transition={{ type: "spring", bounce: 0.5 }}
       >
-        {getEmoji()}
+        {getResultEmoji(percentage)}
       </motion.span>
 
       <motion.h2
@@ -47,7 +32,7 @@ export function SoloResults() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
       >
-        {getMessage()}
+        {getResultMessage(percentage)}
       </motion.h2>
 
       <motion.div
