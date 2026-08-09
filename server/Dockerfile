@@ -13,4 +13,4 @@ COPY server/ ./server/
 WORKDIR /app/server
 ENV NODE_ENV=production
 
-CMD ["sh", "-c", "npx knex migrate:latest && npx tsx src/index.ts"]
+CMD ["sh", "-c", "npx tsx node_modules/.bin/knex migrate:latest && npx tsx src/index.ts"]
