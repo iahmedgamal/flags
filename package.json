@@ -1,0 +1,22 @@
+{
+  "name": "flags",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "shared",
+    "client",
+    "server"
+  ],
+  "scripts": {
+    "db:up": "docker compose up -d postgres",
+    "db:down": "docker compose down",
+    "migrate": "npm run migrate -w server",
+    "seed": "npm run seed -w server",
+    "setup": "docker compose down && docker compose up -d postgres && npm run migrate && npm run seed",
+    "dev": "concurrently -n server,client \"npm run dev -w server\" \"npm run dev -w client\"",
+    "build": "npm run build -w client"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.0"
+  }
+}
