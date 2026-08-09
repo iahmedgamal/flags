@@ -10,6 +10,11 @@ services:
       POSTGRES_DB: flags
       POSTGRES_USER: flags
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U flags -d flags"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
 
   server:
     build:
@@ -21,7 +26,8 @@ services:
       DATABASE_URL: postgres://flags:${POSTGRES_PASSWORD}@postgres:5432/flags
       PORT: 3000
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
 
   client:
     build:
