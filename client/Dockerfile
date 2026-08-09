@@ -1,11 +1,11 @@
 FROM node:20-alpine AS builder
 WORKDIR /app
 
-COPY package.json ./
+COPY package.json package-lock.json ./
 COPY shared/package.json ./shared/
 COPY client/package.json ./client/
 
-RUN npm install
+RUN npm ci
 
 COPY shared/ ./shared/
 COPY client/ ./client/
