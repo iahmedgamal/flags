@@ -5,6 +5,7 @@ import { SoloGame } from "@/pages/SoloGame";
 import { SoloResults } from "@/pages/SoloResults";
 import { PlayerSetup } from "@/pages/PlayerSetup";
 import { Profile } from "@/pages/Profile";
+import { Leaderboard } from "@/pages/Leaderboard";
 
 function AppRoutes() {
   const { player, loading } = usePlayer();
@@ -27,6 +28,7 @@ function AppRoutes() {
       <Route path="/play" element={<SoloGame />} />
       <Route path="/results" element={<SoloResults />} />
       <Route path="/profile/:id" element={<Profile />} />
+      <Route path="/leaderboard" element={<Leaderboard />} />
     </Routes>
   );
 }

@@ -157,6 +157,12 @@ export function SoloResults() {
           Play Again
         </button>
         <button
+          onClick={() => navigate("/leaderboard")}
+          className="rounded-xl bg-gray-800 px-8 py-4 font-semibold transition-colors hover:bg-gray-700"
+        >
+          🏆 Leaderboard
+        </button>
+        <button
           onClick={() => navigate("/")}
           className="rounded-xl bg-gray-800 px-8 py-4 font-semibold transition-colors hover:bg-gray-700"
         >

@@ -52,6 +52,14 @@ export function Home() {
         >
           Play
         </motion.button>
+        <motion.button
+          onClick={() => navigate("/leaderboard")}
+          className="rounded-xl bg-gray-800 px-12 py-5 text-xl font-bold transition-colors hover:bg-gray-700"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          🏆 Leaderboard
+        </motion.button>
       </motion.div>
     </div>
   );
