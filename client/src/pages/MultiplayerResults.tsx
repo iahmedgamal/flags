@@ -20,9 +20,10 @@ interface RoomState {
   status: string;
 }
 
-const PODIUM_COLORS = ["text-yellow-400", "text-gray-300", "text-amber-600"];
+const PODIUM_COLORS = ["text-amber-300", "text-[#c0b8b0]", "text-amber-600"];
 const PODIUM_BADGES = ["🥇", "🥈", "🥉"];
 const PODIUM_HEIGHTS = ["h-32", "h-24", "h-16"];
+const PODIUM_BG = ["bg-amber-500/15", "bg-white/5", "bg-amber-700/15"];
 
 export function MultiplayerResults() {
   const navigate = useNavigate();
@@ -52,7 +53,7 @@ export function MultiplayerResults() {
   return (
     <div className="flex min-h-screen flex-col items-center gap-8 p-4 pt-12">
       <motion.h1
-        className="text-4xl font-bold"
+        className="text-4xl font-bold text-[#f5f0eb]"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
       >
@@ -87,17 +88,11 @@ export function MultiplayerResults() {
                 >
                   {p.displayName}
                 </p>
-                <p className="text-2xl font-bold text-emerald-400">
+                <p className="text-2xl font-bold text-amber-200/80">
                   {p.score}
                 </p>
                 <div
-                  className={`w-24 rounded-t-xl ${PODIUM_HEIGHTS[actualRank]} ${
-                    actualRank === 0
-                      ? "bg-yellow-500/20"
-                      : actualRank === 1
-                        ? "bg-gray-500/20"
-                        : "bg-amber-600/20"
-                  }`}
+                  className={`w-24 rounded-t-xl ${PODIUM_HEIGHTS[actualRank]} ${PODIUM_BG[actualRank]}`}
                 />
               </motion.div>
             );
@@ -116,14 +111,14 @@ export function MultiplayerResults() {
             {rest.map((p, i) => (
               <div
                 key={p.id}
-                className="flex items-center gap-3 rounded-xl bg-gray-800 p-3"
+                className="card-glass flex items-center gap-3 rounded-xl p-3"
               >
-                <span className="w-8 text-center text-sm font-bold text-gray-500">
+                <span className="w-8 text-center text-sm font-bold text-[#8a8580]">
                   {i + 4}
                 </span>
                 <span className="text-xl">{p.avatar}</span>
-                <span className="font-semibold">{p.displayName}</span>
-                <span className="ml-auto font-bold text-emerald-400">
+                <span className="font-semibold text-[#f5f0eb]">{p.displayName}</span>
+                <span className="ml-auto font-bold text-amber-200/80">
                   {p.score}
                 </span>
               </div>
@@ -140,13 +135,13 @@ export function MultiplayerResults() {
       >
         <button
           onClick={handlePlayAgain}
-          className="rounded-xl bg-emerald-600 px-8 py-4 font-semibold transition-colors hover:bg-emerald-500"
+          className="rounded-xl bg-teal-600 px-8 py-4 font-semibold text-white transition-colors hover:bg-teal-500"
         >
           Play Again
         </button>
         <button
           onClick={handleHome}
-          className="rounded-xl bg-gray-800 px-8 py-4 font-semibold transition-colors hover:bg-gray-700"
+          className="card-glass rounded-xl px-8 py-4 font-semibold text-[#f5f0eb] transition-colors hover:bg-white/10"
         >
           Home
         </button>

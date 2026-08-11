@@ -140,24 +140,24 @@ export function MultiplayerLobby() {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-8 p-4">
         <motion.div
-          className="flex flex-col items-center gap-2"
+          className="flex flex-col items-center gap-3"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <h2 className="text-2xl font-bold text-gray-400">Room Code</h2>
-          <p className="text-5xl font-bold tracking-widest text-emerald-400">
+          <p className="label-caps">Room Code</p>
+          <p className="text-5xl font-bold tracking-widest text-amber-300">
             {room.code}
           </p>
           <div className="flex gap-2">
             <button
               onClick={handleCopyCode}
-              className="rounded-lg bg-gray-800 px-4 py-2 text-sm font-semibold transition-colors hover:bg-gray-700"
+              className="card-glass rounded-lg px-4 py-2 text-sm font-semibold transition-colors hover:border-amber-500/30"
             >
               {copied === "code" ? "Copied!" : "Copy Code"}
             </button>
             <button
               onClick={handleCopyLink}
-              className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold transition-colors hover:bg-emerald-500"
+              className="rounded-lg bg-amber-500 px-4 py-2 text-sm font-bold text-[#0a0e1a] transition-colors hover:bg-amber-400"
             >
               {copied === "link" ? "Copied!" : "Copy Link"}
             </button>
@@ -170,22 +170,22 @@ export function MultiplayerLobby() {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
         >
-          <p className="mb-3 text-center text-sm font-semibold text-gray-400">
+          <p className="label-caps mb-3 text-center">
             Players ({room.players.length})
           </p>
           <div className="flex flex-col gap-2">
             {room.players.map((p, i) => (
               <motion.div
                 key={p.id}
-                className="flex items-center gap-3 rounded-xl bg-gray-800 p-3"
+                className="card-glass flex items-center gap-3 rounded-xl p-3"
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.3 + i * 0.1 }}
               >
                 <span className="text-2xl">{p.avatar}</span>
-                <span className="font-semibold">{p.displayName}</span>
+                <span className="font-semibold text-[#f5f0eb]">{p.displayName}</span>
                 {p.id === room.hostId && (
-                  <span className="ml-auto rounded bg-emerald-600 px-2 py-0.5 text-xs font-bold">
+                  <span className="ml-auto rounded bg-amber-500/20 px-2 py-0.5 text-xs font-bold text-amber-300">
                     HOST
                   </span>
                 )}
@@ -196,8 +196,8 @@ export function MultiplayerLobby() {
 
         {room.players.length < 2 && (
           <motion.p
-            className="text-sm text-yellow-400"
-            animate={{ opacity: [0.5, 1, 0.5] }}
+            className="text-sm text-amber-400/80"
+            animate={{ opacity: [0.4, 1, 0.4] }}
             transition={{ repeat: Infinity, duration: 2 }}
           >
             Waiting for more players...
@@ -208,7 +208,7 @@ export function MultiplayerLobby() {
           {isHost && room.players.length >= 2 && (
             <motion.button
               onClick={handleStart}
-              className="rounded-xl bg-emerald-600 px-8 py-4 text-lg font-bold transition-colors hover:bg-emerald-500"
+              className="rounded-xl bg-amber-500 px-8 py-4 text-lg font-bold text-[#0a0e1a] transition-colors hover:bg-amber-400"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               initial={{ opacity: 0 }}
@@ -219,7 +219,7 @@ export function MultiplayerLobby() {
           )}
           <button
             onClick={handleLeave}
-            className="rounded-xl bg-gray-800 px-6 py-4 font-semibold text-red-400 transition-colors hover:bg-gray-700"
+            className="card-glass rounded-xl px-6 py-4 font-semibold text-red-400 transition-colors hover:bg-red-500/10"
           >
             Leave
           </button>
@@ -231,13 +231,15 @@ export function MultiplayerLobby() {
   // Menu — create or join
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-8 p-4">
-      <motion.h1
-        className="text-4xl font-bold"
+      <motion.div
+        className="flex flex-col items-center gap-3"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        Multiplayer
-      </motion.h1>
+        <span className="text-5xl">🎮</span>
+        <h1 className="text-4xl font-bold text-amber-100">Multiplayer</h1>
+        <div className="divider-gold w-32" />
+      </motion.div>
 
       {mode === "menu" && (
         <motion.div
@@ -251,7 +253,7 @@ export function MultiplayerLobby() {
               setMode("create");
               handleCreate();
             }}
-            className="rounded-xl bg-emerald-600 px-12 py-5 text-xl font-bold transition-colors hover:bg-emerald-500"
+            className="rounded-xl bg-amber-500 px-12 py-5 text-xl font-bold text-[#0a0e1a] transition-colors hover:bg-amber-400"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
@@ -259,7 +261,7 @@ export function MultiplayerLobby() {
           </motion.button>
           <motion.button
             onClick={() => setMode("join")}
-            className="rounded-xl bg-gray-800 px-12 py-5 text-xl font-bold transition-colors hover:bg-gray-700"
+            className="card-glass rounded-xl px-12 py-5 text-xl font-bold transition-all hover:border-amber-500/30"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
@@ -267,7 +269,7 @@ export function MultiplayerLobby() {
           </motion.button>
           <button
             onClick={() => navigate("/")}
-            className="text-gray-500 hover:text-gray-300"
+            className="text-[#8a8580] transition-colors hover:text-[#f5f0eb]"
           >
             ← Back
           </button>
@@ -286,7 +288,7 @@ export function MultiplayerLobby() {
             onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
             placeholder="Enter room code"
             maxLength={6}
-            className="rounded-xl bg-gray-800 px-6 py-4 text-center text-2xl font-bold tracking-widest text-white placeholder-gray-500 outline-none focus:ring-2 focus:ring-emerald-500"
+            className="card-glass rounded-xl px-6 py-4 text-center text-2xl font-bold tracking-widest text-[#f5f0eb] placeholder-[#8a8580]/50 outline-none focus:ring-2 focus:ring-amber-500/50"
             autoFocus
           />
           {error && <p className="text-sm text-red-400">{error}</p>}
@@ -294,7 +296,7 @@ export function MultiplayerLobby() {
             <motion.button
               onClick={handleJoin}
               disabled={roomCode.length < 6}
-              className="rounded-xl bg-emerald-600 px-8 py-4 font-bold transition-colors hover:bg-emerald-500 disabled:opacity-50"
+              className="rounded-xl bg-amber-500 px-8 py-4 font-bold text-[#0a0e1a] transition-colors hover:bg-amber-400 disabled:opacity-50"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
@@ -305,7 +307,7 @@ export function MultiplayerLobby() {
                 setMode("menu");
                 setError("");
               }}
-              className="rounded-xl bg-gray-800 px-6 py-4 font-semibold transition-colors hover:bg-gray-700"
+              className="card-glass rounded-xl px-6 py-4 font-semibold transition-colors hover:border-amber-500/30"
             >
               Back
             </button>

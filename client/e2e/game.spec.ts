@@ -21,13 +21,13 @@ test.describe("Home page", () => {
   test("should show title and play button", async ({ page }) => {
     await page.goto("/");
 
-    await expect(page.getByText("🌍 Flags")).toBeVisible();
-    await expect(page.getByRole("button", { name: "Play" })).toBeVisible();
+    await expect(page.getByText("Flags")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Solo Play" })).toBeVisible();
   });
 
   test("should navigate to game on play click", async ({ page }) => {
     await page.goto("/");
-    await page.getByRole("button", { name: "Play" }).click();
+    await page.getByRole("button", { name: "Solo Play" }).click();
 
     await expect(page).toHaveURL("/play");
   });
@@ -50,9 +50,9 @@ test.describe("Game flow", () => {
     // Should show timer
     await expect(page.getByText("7s")).toBeVisible();
 
-    // Should show 4 answer buttons (plus the disabled state buttons in the grid)
-    const options = page.locator("button").filter({ hasNotText: "Score" });
-    await expect(options).toHaveCount(4);
+    // Should show 4 answer buttons
+    const options = page.locator("button").filter({ hasNotText: /Score|pts/ });
+    await expect(options).toHaveCount(5); // 4 options + pause button
   });
 
   test("should render flag as Twemoji image with country name", async ({ page }) => {
@@ -64,42 +64,41 @@ test.describe("Game flow", () => {
     await expect(flagImg).toBeVisible();
     await expect(flagImg).toHaveAttribute("src", /twemoji.*\.svg$/);
 
-    // Country name should appear near the flag
-    const countryName = page.locator("img[src*='cdn.jsdelivr.net'] + span");
-    await expect(countryName).toBeVisible();
-    await expect(countryName).not.toHaveText("");
+    // Country name should appear within the flag card
+    const countryName = page.locator(".label-caps").filter({ hasNotText: /\// });
+    await expect(countryName.first()).toBeVisible();
   });
 
   test("should advance to next question after answering", async ({ page }) => {
     await page.goto("/play?fast=1");
     await expect(page.getByText("1 / 40")).toBeVisible();
 
-    // Click the first option
-    const buttons = page.locator("button").filter({ hasNotText: "Score" });
+    // Click the first answer option (not the pause button)
+    const buttons = page.locator("button:not([aria-label])").filter({ hasNotText: /pts|Score/ });
     await buttons.first().click();
 
     // Wait for next question
     await expect(page.getByText("2 / 40")).toBeVisible({ timeout: 3000 });
   });
 
-  test("should show correct answer in green after selection", async ({ page }) => {
+  test("should show correct answer highlighted after selection", async ({ page }) => {
     await page.goto("/play?fast=1");
     await expect(page.getByText("What's the capital?")).toBeVisible();
 
-    // Click first option
-    const buttons = page.locator("button").filter({ hasNotText: "Score" });
+    // Click first answer option
+    const buttons = page.locator("button:not([aria-label])").filter({ hasNotText: /pts|Score/ });
     await buttons.first().click();
 
-    // One button should have green background (correct answer)
-    const greenButton = page.locator("button.bg-emerald-600");
-    await expect(greenButton).toBeVisible();
+    // One button should have teal (correct) styling
+    const correctButton = page.locator("button.border-teal-500\\/60, button.bg-teal-500\\/15");
+    await expect(correctButton.first()).toBeVisible();
   });
 
   test("should auto-advance when timer runs out", async ({ page }) => {
     await page.goto("/play?fast=1");
     await expect(page.getByText("1 / 40")).toBeVisible();
 
-    // Wait for timer to expire (7s + 1s transition)
+    // Wait for timer to expire (7s + transition)
     await expect(page.getByText("2 / 40")).toBeVisible({ timeout: 10_000 });
   });
 
@@ -110,12 +109,11 @@ test.describe("Game flow", () => {
 
     for (let i = 0; i < 40; i++) {
       const buttons = page.locator(
-        "button:not([disabled])"
-      ).filter({ hasNotText: "Score" });
+        "button:not([disabled]):not([aria-label])"
+      ).filter({ hasNotText: /pts|Score/ });
       await buttons.first().click();
 
       if (i < 39) {
-        // Wait for next question
         await expect(
           page.getByText(`${i + 2} / 40`)
         ).toBeVisible({ timeout: 3000 });
@@ -139,8 +137,8 @@ test.describe("Results page", () => {
 
     for (let i = 0; i < 40; i++) {
       const buttons = page.locator(
-        "button:not([disabled])"
-      ).filter({ hasNotText: "Score" });
+        "button:not([disabled]):not([aria-label])"
+      ).filter({ hasNotText: /pts|Score/ });
       await buttons.first().click();
 
       if (i < 39) {
@@ -175,8 +173,8 @@ test.describe("Results page", () => {
 
     for (let i = 0; i < 40; i++) {
       const buttons = page.locator(
-        "button:not([disabled])"
-      ).filter({ hasNotText: "Score" });
+        "button:not([disabled]):not([aria-label])"
+      ).filter({ hasNotText: /pts|Score/ });
       await buttons.first().click();
 
       if (i < 39) {

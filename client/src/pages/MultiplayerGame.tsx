@@ -4,6 +4,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { socket } from "@/lib/socket";
 import { usePlayer } from "@/hooks/usePlayer";
 import { FlagEmoji } from "@/components/FlagEmoji";
+import { LeaveGameModal } from "@/components/LeaveGameModal";
+import { GameTopNav } from "@/components/GameTopNav";
 
 interface RoomPlayer {
   id: string;
@@ -44,6 +46,7 @@ export function MultiplayerGame() {
   const [selected, setSelected] = useState<string | null>(null);
   const [correctAnswer, setCorrectAnswer] = useState<string | null>(null);
   const [timer, setTimer] = useState(0);
+  const [showLeave, setShowLeave] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const startTimer = useCallback((seconds: number) => {
@@ -135,8 +138,8 @@ export function MultiplayerGame() {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <motion.p
-          className="text-2xl"
-          animate={{ opacity: [0.5, 1, 0.5] }}
+          className="text-xl text-[#8a8580]"
+          animate={{ opacity: [0.4, 1, 0.4] }}
           transition={{ repeat: Infinity, duration: 1.5 }}
         >
           Waiting for game...
@@ -146,124 +149,148 @@ export function MultiplayerGame() {
   }
 
   const timerColor =
-    timer > 6 ? "text-emerald-400" : timer > 3 ? "text-yellow-400" : "text-red-400";
+    timer > 4 ? "text-teal-400" : timer > 2 ? "text-amber-400" : "text-red-400";
+  const timerBg =
+    timer > 4 ? "bg-teal-500" : timer > 2 ? "bg-amber-500" : "bg-red-500";
 
   const sortedPlayers = [...room.players].sort((a, b) => b.score - a.score);
 
+  const handleLeave = () => {
+    if (room) {
+      socket.emit("leave-room", { code: room.code, playerId: player?.id });
+    }
+    navigate("/");
+  };
+
   return (
-    <div className="flex min-h-screen flex-col lg:flex-row">
-      {/* Scoreboard */}
-      <div className="order-2 flex flex-row gap-2 overflow-x-auto p-3 lg:order-1 lg:w-64 lg:flex-col lg:overflow-x-visible lg:border-r lg:border-gray-800 lg:p-4">
-        <p className="hidden text-xs font-semibold text-gray-500 lg:block">
-          SCOREBOARD
-        </p>
-        {sortedPlayers.map((p, i) => (
-          <motion.div
-            key={p.id}
-            className={`flex shrink-0 items-center gap-2 rounded-xl p-2 lg:p-3 ${
-              p.id === player?.id
-                ? "bg-emerald-900/30 ring-1 ring-emerald-500/50"
-                : "bg-gray-800"
-            }`}
-            layout
-            transition={{ type: "spring", stiffness: 300, damping: 30 }}
-          >
-            <span className="text-xs font-bold text-gray-500">{i + 1}</span>
-            <span className="text-lg">{p.avatar}</span>
-            <div className="min-w-0">
-              <p className="truncate text-sm font-semibold">{p.displayName}</p>
-              <p className="text-xs text-emerald-400">{p.score} pts</p>
-            </div>
-            {p.streak > 1 && (
-              <span className="ml-auto text-xs text-orange-400">
-                🔥{p.streak}
-              </span>
-            )}
-          </motion.div>
-        ))}
-      </div>
-
-      {/* Game area */}
-      <div className="order-1 flex flex-1 flex-col items-center justify-center gap-6 p-4 lg:order-2">
-        <div className="flex w-full max-w-lg items-center justify-between text-sm text-gray-400">
-          <span>
-            {question.index + 1} / {question.total}
-          </span>
-          <motion.span
-            className={`text-2xl font-bold ${timerColor}`}
-            key={timer}
-            initial={{ scale: 1.3 }}
-            animate={{ scale: 1 }}
-          >
-            {timer}s
-          </motion.span>
-        </div>
-
-        <div className="h-2 w-full max-w-lg overflow-hidden rounded-full bg-gray-800">
-          <motion.div
-            className="h-full bg-emerald-500"
-            animate={{
-              width: `${((question.index + 1) / question.total) * 100}%`,
-            }}
-            transition={{ type: "spring" }}
+    <div className="flex min-h-screen flex-col">
+      <AnimatePresence>
+        {showLeave && (
+          <LeaveGameModal
+            onResume={() => setShowLeave(false)}
+            onLeave={handleLeave}
           />
+        )}
+      </AnimatePresence>
+
+      <GameTopNav
+        onSecondaryAction={() => setShowLeave(true)}
+        secondaryLabel="Leave"
+        secondaryVariant="leave"
+      />
+
+      <div className="mt-14 flex flex-1 flex-col lg:flex-row">
+        {/* Scoreboard — top on mobile, sidebar on desktop */}
+        <div className="flex flex-row gap-2 overflow-x-auto border-b border-white/5 p-3 lg:w-64 lg:flex-col lg:overflow-x-visible lg:border-b-0 lg:border-r lg:p-4">
+          <p className="label-caps hidden lg:block">SCOREBOARD</p>
+          {sortedPlayers.map((p, i) => (
+            <motion.div
+              key={p.id}
+              className={`card-glass flex shrink-0 items-center gap-2 rounded-xl p-2 lg:p-3 ${
+                p.id === player?.id ? "border-teal-500/40 bg-teal-500/10" : ""
+              }`}
+              layout
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            >
+              <span className="text-xs font-bold text-[#8a8580]">{i + 1}</span>
+              <span className="text-lg">{p.avatar}</span>
+              <div className="min-w-0">
+                <p className="truncate text-sm font-semibold text-[#f5f0eb]">{p.displayName}</p>
+                <p className="text-xs font-semibold text-amber-200/80">{p.score} pts</p>
+              </div>
+              {p.streak > 1 && (
+                <motion.span
+                  className="ml-auto text-xs font-bold text-orange-400"
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                >
+                  {p.streak}x
+                </motion.span>
+              )}
+            </motion.div>
+          ))}
         </div>
 
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={question.index}
-            className="flex flex-col items-center gap-6"
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -50 }}
-          >
-            <div className="flex flex-col items-center gap-1">
-              <FlagEmoji emoji={question.flag} className="h-24 w-24" />
-              <span className="text-xs text-gray-500">{question.countryName}</span>
-            </div>
-            <p className="text-center text-xl text-gray-300">
-              {question.prompt}
-            </p>
+        {/* Game area */}
+        <div className="flex flex-1 flex-col items-center justify-center gap-6 p-4">
+          <div className="card-glass flex w-full max-w-lg items-center justify-between rounded-xl px-5 py-3">
+            <span className="label-caps">
+              {question.index + 1} / {question.total}
+            </span>
+            <motion.span
+              className={`text-2xl font-bold tabular-nums ${timerColor}`}
+              key={timer}
+              initial={{ scale: 1.4, opacity: 0.6 }}
+              animate={{ scale: 1, opacity: 1 }}
+            >
+              {timer}s
+            </motion.span>
+          </div>
 
-            <div className="grid w-full max-w-lg grid-cols-1 gap-3 sm:grid-cols-2">
-              {question.options.map((option) => {
-                let bg = "bg-gray-800 hover:bg-gray-700";
-                if (correctAnswer) {
-                  if (option === correctAnswer) {
-                    bg = "bg-emerald-600";
-                  } else if (option === selected) {
-                    bg = "bg-red-600";
-                  } else {
-                    bg = "bg-gray-800 opacity-50";
-                  }
-                } else if (selected === option) {
-                  bg = "bg-blue-600";
-                }
+          <div className="h-1 w-full max-w-lg overflow-hidden rounded-full bg-white/5">
+            <motion.div
+              className={`h-full ${timerBg}`}
+              animate={{
+                width: `${((question.index + 1) / question.total) * 100}%`,
+              }}
+              transition={{ type: "spring" }}
+            />
+          </div>
 
-                return (
-                  <motion.button
-                    key={option}
-                    onClick={() => handleAnswer(option)}
-                    className={`rounded-xl px-6 py-4 text-left font-semibold transition-colors ${bg}`}
-                    whileHover={!selected ? { scale: 1.02 } : undefined}
-                    whileTap={!selected ? { scale: 0.98 } : undefined}
-                    animate={
-                      correctAnswer &&
-                      option === selected &&
-                      option !== correctAnswer
-                        ? { x: [0, -10, 10, -10, 10, 0] }
-                        : undefined
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={question.index}
+              className="flex flex-col items-center gap-6"
+              initial={{ opacity: 0, x: 60 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -60 }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            >
+              <FlagEmoji emoji={question.flag} countryName={question.countryName} />
+              <p className="text-center text-lg text-[#8a8580]">
+                {question.prompt}
+              </p>
+
+              <div className="grid w-full max-w-lg grid-cols-1 gap-3 sm:grid-cols-2">
+                {question.options.map((option) => {
+                  let classes = "card-glass hover:border-amber-500/30 hover:bg-white/5";
+                  if (correctAnswer) {
+                    if (option === correctAnswer) {
+                      classes = "border border-teal-500/60 bg-teal-500/15 text-teal-200";
+                    } else if (option === selected) {
+                      classes = "border border-red-500/60 bg-red-500/15 text-red-200";
+                    } else {
+                      classes = "card-glass opacity-30";
                     }
-                    transition={{ duration: 0.4 }}
-                    disabled={!!selected}
-                  >
-                    {option}
-                  </motion.button>
-                );
-              })}
-            </div>
-          </motion.div>
-        </AnimatePresence>
+                  } else if (selected === option) {
+                    classes = "border border-amber-500/60 bg-amber-500/15 text-amber-200";
+                  }
+
+                  return (
+                    <motion.button
+                      key={option}
+                      onClick={() => handleAnswer(option)}
+                      className={`rounded-xl px-6 py-4 text-left font-semibold transition-all ${classes}`}
+                      whileHover={!selected ? { scale: 1.02 } : undefined}
+                      whileTap={!selected ? { scale: 0.97 } : undefined}
+                      animate={
+                        correctAnswer &&
+                        option === selected &&
+                        option !== correctAnswer
+                          ? { x: [0, -8, 8, -8, 8, 0] }
+                          : undefined
+                      }
+                      transition={{ duration: 0.4 }}
+                      disabled={!!selected}
+                    >
+                      {option}
+                    </motion.button>
+                  );
+                })}
+              </div>
+            </motion.div>
+          </AnimatePresence>
+        </div>
       </div>
     </div>
   );

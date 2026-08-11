@@ -41,7 +41,7 @@ function AppRoutes() {
 
 export function App() {
   return (
-    <div className="min-h-screen bg-gray-950 text-white">
+    <div className="bg-atlas min-h-screen text-[#e8e4df]">
       <PlayerProvider>
         <AppRoutes />
       </PlayerProvider>

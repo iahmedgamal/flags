@@ -5,6 +5,8 @@ import { generateQuestions } from "@/lib/game";
 import type { Country, Question, QuestionResult } from "@/lib/game";
 import { usePlayer } from "@/hooks/usePlayer";
 import { FlagEmoji } from "@/components/FlagEmoji";
+import { LeaveGameModal } from "@/components/LeaveGameModal";
+import { GameTopNav } from "@/components/GameTopNav";
 
 const TOTAL_QUESTIONS = 40;
 const SECONDS_PER_QUESTION = 7;
@@ -27,6 +29,7 @@ export function SoloGame() {
   const [timer, setTimer] = useState(SECONDS_PER_QUESTION);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const resultsRef = useRef<QuestionResult[]>([]);
+  const [paused, setPaused] = useState(false);
 
   useEffect(() => {
     fetch("/api/countries")
@@ -38,7 +41,7 @@ export function SoloGame() {
   }, []);
 
   useEffect(() => {
-    if (loading || selected) return;
+    if (loading || selected || paused) return;
 
     setTimer(SECONDS_PER_QUESTION);
     timerRef.current = setInterval(() => {
@@ -54,7 +57,7 @@ export function SoloGame() {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [current, loading, selected]);
+  }, [current, loading, selected, paused]);
 
   useEffect(() => {
     if (timer === 0 && !selected && questions.length > 0) {
@@ -131,78 +134,107 @@ export function SoloGame() {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <motion.p
-          className="text-2xl"
-          animate={{ opacity: [0.5, 1, 0.5] }}
+          className="text-xl text-[#8a8580]"
+          animate={{ opacity: [0.4, 1, 0.4] }}
           transition={{ repeat: Infinity, duration: 1.5 }}
         >
-          Loading...
+          Preparing your challenge...
         </motion.p>
       </div>
     );
   }
 
   const question = questions[current];
-  const timerColor = timer > 4 ? "text-emerald-400" : timer > 2 ? "text-yellow-400" : "text-red-400";
+  const timerColor =
+    timer > 4 ? "text-teal-400" : timer > 2 ? "text-amber-400" : "text-red-400";
+  const timerBg =
+    timer > 4 ? "bg-teal-500" : timer > 2 ? "bg-amber-500" : "bg-red-500";
+
+  const handlePause = () => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    setPaused(true);
+  };
+
+  const handleResume = () => {
+    setPaused(false);
+  };
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-6 p-4">
-      <div className="flex w-full max-w-lg items-center justify-between text-sm text-gray-400">
-        <span>
+      <AnimatePresence>
+        {paused && (
+          <LeaveGameModal
+            isPausable
+            onResume={handleResume}
+            onLeave={() => navigate("/")}
+          />
+        )}
+      </AnimatePresence>
+
+      <GameTopNav onSecondaryAction={handlePause} secondaryLabel="Pause" />
+
+      {/* Header bar */}
+      <div className="card-glass mt-12 flex w-full max-w-lg items-center justify-between rounded-xl px-5 py-3">
+        <span className="label-caps">
           {current + 1} / {questions.length}
         </span>
         <motion.span
-          className={`text-2xl font-bold ${timerColor}`}
+          className={`text-2xl font-bold tabular-nums ${timerColor}`}
           key={timer}
-          initial={{ scale: 1.3 }}
-          animate={{ scale: 1 }}
+          initial={{ scale: 1.4, opacity: 0.6 }}
+          animate={{ scale: 1, opacity: 1 }}
         >
           {timer}s
         </motion.span>
-        <span>Score: {score}</span>
+        <span className="text-sm font-semibold text-amber-200/80">
+          {score} <span className="label-caps">pts</span>
+        </span>
         {streak > 1 && (
           <motion.span
-            className="text-orange-400"
+            className="text-sm font-bold text-orange-400"
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
           >
-            🔥 {streak}
+            {streak}x
           </motion.span>
         )}
       </div>
 
-      <div className="h-2 w-full max-w-lg overflow-hidden rounded-full bg-gray-800">
+      {/* Progress bar */}
+      <div className="h-1 w-full max-w-lg overflow-hidden rounded-full bg-white/5">
         <motion.div
-          className="h-full bg-emerald-500"
+          className={`h-full ${timerBg}`}
           animate={{ width: `${((current + 1) / questions.length) * 100}%` }}
           transition={{ type: "spring" }}
         />
       </div>
 
+      {/* Question card */}
       <AnimatePresence mode="wait">
         <motion.div
           key={current}
           className="flex flex-col items-center gap-6"
-          initial={{ opacity: 0, x: 50 }}
+          initial={{ opacity: 0, x: 60 }}
           animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -50 }}
+          exit={{ opacity: 0, x: -60 }}
+          transition={{ type: "spring", stiffness: 300, damping: 30 }}
         >
-          <div className="flex flex-col items-center gap-1">
-            <FlagEmoji emoji={question.flag} className="h-24 w-24" />
-            <span className="text-xs text-gray-500">{question.countryName}</span>
-          </div>
+          <FlagEmoji emoji={question.flag} countryName={question.countryName} />
 
-          <p className="text-center text-xl text-gray-300">What's the capital?</p>
+          <p className="text-center text-lg text-[#8a8580]">
+            What's the capital?
+          </p>
 
           <div className="grid w-full max-w-lg grid-cols-1 gap-3 sm:grid-cols-2">
             {question.options.map((option) => {
-              let bg = "bg-gray-800 hover:bg-gray-700";
+              let classes = "card-glass hover:border-amber-500/30 hover:bg-white/5";
               if (selected) {
                 if (option === question.correctAnswer) {
-                  bg = "bg-emerald-600";
+                  classes = "border border-teal-500/60 bg-teal-500/15 text-teal-200";
                 } else if (option === selected) {
-                  bg = "bg-red-600";
+                  classes = "border border-red-500/60 bg-red-500/15 text-red-200";
                 } else {
-                  bg = "bg-gray-800 opacity-50";
+                  classes = "card-glass opacity-30";
                 }
               }
 
@@ -210,12 +242,12 @@ export function SoloGame() {
                 <motion.button
                   key={option}
                   onClick={() => handleAnswer(option)}
-                  className={`rounded-xl px-6 py-4 text-left font-semibold transition-colors ${bg}`}
+                  className={`rounded-xl px-6 py-4 text-left font-semibold transition-all ${classes}`}
                   whileHover={!selected ? { scale: 1.02 } : undefined}
-                  whileTap={!selected ? { scale: 0.98 } : undefined}
+                  whileTap={!selected ? { scale: 0.97 } : undefined}
                   animate={
                     selected && option === selected && !correct
-                      ? { x: [0, -10, 10, -10, 10, 0] }
+                      ? { x: [0, -8, 8, -8, 8, 0] }
                       : undefined
                   }
                   transition={{ duration: 0.4 }}
