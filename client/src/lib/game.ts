@@ -13,6 +13,7 @@ export interface Question {
   correctAnswer: string;
   options: string[];
   flag: string;
+  countryName: string;
   continent: string;
 }
 
@@ -114,6 +115,7 @@ export function generateQuestions(
       return {
         prompt: "Which country does this flag belong to?",
         flag: country.flag_url,
+        countryName: country.name,
         correctAnswer: country.name,
         options,
         continent: country.continent,
@@ -125,6 +127,7 @@ export function generateQuestions(
       return {
         prompt: `What is the capital of ${country.name}?`,
         flag: country.flag_url,
+        countryName: country.name,
         correctAnswer: country.capital,
         options,
         continent: country.continent,
@@ -136,6 +139,7 @@ export function generateQuestions(
     return {
       prompt: "What is the capital of this country?",
       flag: country.flag_url,
+      countryName: country.name,
       correctAnswer: country.capital,
       options,
       continent: country.continent,

@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { generateQuestions } from "@/lib/game";
 import type { Country, Question, QuestionResult } from "@/lib/game";
 import { usePlayer } from "@/hooks/usePlayer";
+import { FlagEmoji } from "@/components/FlagEmoji";
 
 const TOTAL_QUESTIONS = 40;
 const SECONDS_PER_QUESTION = 7;
@@ -185,7 +186,10 @@ export function SoloGame() {
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -50 }}
         >
-          <span className="text-8xl">{question.flag}</span>
+          <div className="flex flex-col items-center gap-1">
+            <FlagEmoji emoji={question.flag} className="h-24 w-24" />
+            <span className="text-xs text-gray-500">{question.countryName}</span>
+          </div>
 
           <p className="text-center text-xl text-gray-300">What's the capital?</p>
 

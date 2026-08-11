@@ -4,7 +4,7 @@ export default defineConfig({
   testDir: "./e2e",
   timeout: 120_000,
   use: {
-    baseURL: "http://localhost:5176",
+    baseURL: "http://localhost:5173",
     headless: true,
   },
   projects: [
@@ -16,7 +16,7 @@ export default defineConfig({
   webServer: {
     command: "npm run dev",
     cwd: "..",
-    port: 5176,
+    port: 5173,
     reuseExistingServer: true,
     timeout: 30_000,
   },

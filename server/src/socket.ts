@@ -17,6 +17,7 @@ interface Question {
   flag: string;
   correctAnswer: string;
   options: string[];
+  countryName: string;
   continent: string;
 }
 
@@ -93,6 +94,7 @@ function generateQuestions(
       return {
         prompt: "Which country does this flag belong to?",
         flag: country.flag_url,
+        countryName: country.name,
         correctAnswer: country.name,
         options: shuffle([country.name, ...distractors.map((c) => c.name)]),
         continent: country.continent,
@@ -103,6 +105,7 @@ function generateQuestions(
       return {
         prompt: `What is the capital of ${country.name}?`,
         flag: country.flag_url,
+        countryName: country.name,
         correctAnswer: country.capital,
         options: shuffle([country.capital, ...distractors.map((c) => c.capital)]),
         continent: country.continent,
@@ -113,6 +116,7 @@ function generateQuestions(
     return {
       prompt: "What is the capital of this country?",
       flag: country.flag_url,
+      countryName: country.name,
       correctAnswer: country.capital,
       options: shuffle([country.capital, ...distractors.map((c) => c.capital)]),
       continent: country.continent,
@@ -144,6 +148,7 @@ function getQuestionForClient(room: Room) {
   return {
     prompt: q.prompt,
     flag: q.flag,
+    countryName: q.countryName,
     options: q.options,
     index: room.currentQuestion,
     total: room.totalQuestions,

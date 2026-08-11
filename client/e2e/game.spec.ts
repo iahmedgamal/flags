@@ -55,6 +55,21 @@ test.describe("Game flow", () => {
     await expect(options).toHaveCount(4);
   });
 
+  test("should render flag as Twemoji image with country name", async ({ page }) => {
+    await page.goto("/play?fast=1");
+    await expect(page.getByText("What's the capital?")).toBeVisible();
+
+    // Flag should be an <img> loading from Twemoji CDN
+    const flagImg = page.locator("img[src*='cdn.jsdelivr.net']");
+    await expect(flagImg).toBeVisible();
+    await expect(flagImg).toHaveAttribute("src", /twemoji.*\.svg$/);
+
+    // Country name should appear near the flag
+    const countryName = page.locator("img[src*='cdn.jsdelivr.net'] + span");
+    await expect(countryName).toBeVisible();
+    await expect(countryName).not.toHaveText("");
+  });
+
   test("should advance to next question after answering", async ({ page }) => {
     await page.goto("/play?fast=1");
     await expect(page.getByText("1 / 40")).toBeVisible();
