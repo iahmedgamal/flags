@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Flag pole -->
+  <rect x="12" y="8" width="4" height="52" rx="2" fill="#8B7355"/>
+  <circle cx="14" cy="8" r="3" fill="#D9A94E"/>
+
+  <!-- Flag body -->
+  <path d="M16 12 C24 8, 32 16, 40 12 C48 8, 52 14, 56 12 L56 36 C48 38, 44 32, 36 36 C28 40, 24 32, 16 36 Z" fill="url(#flagGrad)"/>
+
+  <!-- Flag stripe details -->
+  <path d="M16 20 C24 16, 32 24, 40 20 C48 16, 52 22, 56 20 L56 28 C48 30, 44 24, 36 28 C28 32, 24 24, 16 28 Z" fill="rgba(255,255,255,0.15)"/>
+
+  <!-- Globe accent -->
+  <circle cx="46" cy="48" r="12" fill="#0a0e1a" stroke="#D9A94E" stroke-width="1.5"/>
+  <ellipse cx="46" cy="48" rx="12" ry="5" fill="none" stroke="#D9A94E" stroke-width="0.8" opacity="0.5"/>
+  <ellipse cx="46" cy="48" rx="5" ry="12" fill="none" stroke="#D9A94E" stroke-width="0.8" opacity="0.5"/>
+  <line x1="34" y1="48" x2="58" y2="48" stroke="#D9A94E" stroke-width="0.8" opacity="0.4"/>
+
+  <defs>
+    <linearGradient id="flagGrad" x1="16" y1="12" x2="56" y2="36">
+      <stop offset="0%" stop-color="#D9A94E"/>
+      <stop offset="50%" stop-color="#E8C87A"/>
+      <stop offset="100%" stop-color="#D9A94E"/>
+    </linearGradient>
+  </defs>
+</svg>

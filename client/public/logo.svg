@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <!-- Background circle -->
+  <circle cx="256" cy="256" r="248" fill="#0a0e1a" stroke="#D9A94E" stroke-width="3" opacity="0.9"/>
+  <circle cx="256" cy="256" r="236" fill="none" stroke="#D9A94E" stroke-width="1" opacity="0.2"/>
+
+  <!-- Flag pole -->
+  <rect x="100" y="100" width="20" height="280" rx="10" fill="#8B7355"/>
+  <circle cx="110" cy="96" r="14" fill="#D9A94E"/>
+
+  <!-- Flag body - waving -->
+  <path d="M120 120 C168 96, 216 144, 264 120 C312 96, 348 132, 380 120 L380 260 C348 272, 312 236, 264 260 C216 284, 168 236, 120 260 Z" fill="url(#logoFlagGrad)"/>
+
+  <!-- Flag stripes -->
+  <path d="M120 153 C168 129, 216 177, 264 153 C312 129, 348 165, 380 153 L380 193 C348 205, 312 169, 264 193 C216 217, 168 169, 120 193 Z" fill="rgba(255,255,255,0.12)"/>
+  <path d="M120 213 C168 189, 216 237, 264 213 C312 189, 348 225, 380 213 L380 240 C348 252, 312 216, 264 240 C216 264, 168 216, 120 240 Z" fill="rgba(255,255,255,0.08)"/>
+
+  <!-- Globe element -->
+  <circle cx="340" cy="380" r="72" fill="#0a0e1a" stroke="#D9A94E" stroke-width="2.5"/>
+  <ellipse cx="340" cy="380" rx="72" ry="30" fill="none" stroke="#D9A94E" stroke-width="1.2" opacity="0.4"/>
+  <ellipse cx="340" cy="380" rx="30" ry="72" fill="none" stroke="#D9A94E" stroke-width="1.2" opacity="0.4"/>
+  <line x1="268" y1="380" x2="412" y2="380" stroke="#D9A94E" stroke-width="1.2" opacity="0.3"/>
+  <line x1="340" y1="308" x2="340" y2="452" stroke="#D9A94E" stroke-width="1.2" opacity="0.3"/>
+
+  <!-- Small decorative dots -->
+  <circle cx="160" cy="380" r="4" fill="#D9A94E" opacity="0.3"/>
+  <circle cx="180" cy="400" r="3" fill="#D9A94E" opacity="0.2"/>
+  <circle cx="200" cy="370" r="3.5" fill="#D9A94E" opacity="0.25"/>
+
+  <defs>
+    <linearGradient id="logoFlagGrad" x1="120" y1="120" x2="380" y2="260">
+      <stop offset="0%" stop-color="#D9A94E"/>
+      <stop offset="35%" stop-color="#E8C87A"/>
+      <stop offset="65%" stop-color="#D9A94E"/>
+      <stop offset="100%" stop-color="#C4943F"/>
+    </linearGradient>
+  </defs>
+</svg>
