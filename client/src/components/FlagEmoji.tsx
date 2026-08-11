@@ -27,22 +27,22 @@ export function FlagEmoji({ emoji, countryName, className = "" }: FlagEmojiProps
       {/* Card */}
       <div className="relative rounded-2xl border border-amber-500/20 bg-gradient-to-br from-gray-800 via-gray-850 to-gray-900 p-1 shadow-[0_8px_32px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.06)]">
         {/* Inner bezel */}
-        <div className="relative overflow-hidden rounded-xl border border-white/5 bg-gray-900/80 p-5">
+        <div className="relative overflow-hidden rounded-2xl border border-white/5 bg-gray-900/80 p-8 sm:p-12">
           {/* Corner accents */}
-          <div className="pointer-events-none absolute left-0 top-0 h-4 w-4 border-l-2 border-t-2 border-amber-500/30 rounded-tl-xl" />
-          <div className="pointer-events-none absolute right-0 top-0 h-4 w-4 border-r-2 border-t-2 border-amber-500/30 rounded-tr-xl" />
-          <div className="pointer-events-none absolute bottom-0 left-0 h-4 w-4 border-b-2 border-l-2 border-amber-500/30 rounded-bl-xl" />
-          <div className="pointer-events-none absolute bottom-0 right-0 h-4 w-4 border-b-2 border-r-2 border-amber-500/30 rounded-br-xl" />
+          <div className="pointer-events-none absolute left-0 top-0 h-6 w-6 border-l-2 border-t-2 border-amber-500/30 rounded-tl-xl" />
+          <div className="pointer-events-none absolute right-0 top-0 h-6 w-6 border-r-2 border-t-2 border-amber-500/30 rounded-tr-xl" />
+          <div className="pointer-events-none absolute bottom-0 left-0 h-6 w-6 border-b-2 border-l-2 border-amber-500/30 rounded-bl-xl" />
+          <div className="pointer-events-none absolute bottom-0 right-0 h-6 w-6 border-b-2 border-r-2 border-amber-500/30 rounded-br-xl" />
 
           {/* Flag image with subtle inner shadow */}
           <div className="relative">
             {failed ? (
-              <span className="block text-center text-7xl leading-none">{emoji}</span>
+              <span className="block text-center text-[14rem] leading-none sm:text-[18rem]">{emoji}</span>
             ) : (
               <img
                 src={flagToTwemojiUrl(emoji)}
                 alt={emoji}
-                className="mx-auto block h-20 w-20 drop-shadow-[0_2px_8px_rgba(0,0,0,0.4)]"
+                className="mx-auto block h-64 w-64 drop-shadow-[0_4px_16px_rgba(0,0,0,0.5)] sm:h-80 sm:w-80"
                 draggable={false}
                 onError={() => setFailed(true)}
               />
