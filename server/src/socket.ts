@@ -304,7 +304,11 @@ export function setupSocket(httpServer: HttpServer): Server {
     });
 
     socket.on("disconnect", () => {
-      for (const [code, room] of rooms) {
+      // Only clean up rooms this socket actually joined
+      for (const code of socket.rooms) {
+        const room = rooms.get(code);
+        if (!room) continue;
+
         const socketRoom = io.sockets.adapter.rooms.get(code);
         if (!socketRoom || socketRoom.size === 0) {
           if (room.timer) clearTimeout(room.timer);
