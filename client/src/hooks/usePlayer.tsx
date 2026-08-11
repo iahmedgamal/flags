@@ -25,15 +25,21 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   const fetchPlayer = useCallback(async (id: string) => {
     try {
       const res = await fetch(`/api/players/${id}`);
-      if (!res.ok) {
+      if (res.status === 404) {
+        // Player truly doesn't exist — clear saved ID
         localStorage.removeItem(PLAYER_ID_KEY);
+        setLoading(false);
+        return;
+      }
+      if (!res.ok) {
+        // Server error (deploy, downtime) — keep localStorage, just stop loading
         setLoading(false);
         return;
       }
       const data = await res.json();
       setPlayer(data);
     } catch {
-      localStorage.removeItem(PLAYER_ID_KEY);
+      // Network error (server restarting) — don't wipe the saved ID
     } finally {
       setLoading(false);
     }
